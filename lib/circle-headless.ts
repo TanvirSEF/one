@@ -245,10 +245,48 @@ export type PublicProfileField = {
 
 export type PublicProfile = {
   id: number
+  headline?: string
+  bio?: string
+  name?: string
+  email?: string
+  posts_count?: number
+  comments_count?: number
+  spaces_count?: number
+  bookmarks_count?: number
+  can_receive_dm_from_current_member?: boolean
+  messaging_enabled?: boolean
+  profile_info?: {
+    website?: string
+    location?: string
+    twitter_url?: string
+    facebook_url?: string
+    instagram_url?: string
+    linkedin_url?: string
+  }
+  roles?: {
+    admin: boolean
+    moderator: boolean
+  }
+  member_tags?: Array<{
+    id: number
+    name: string
+    color: string
+    is_public: boolean
+    is_background_enabled?: boolean
+    display_format: string
+    display_locations?: Record<string, boolean>
+    text_color?: string
+    emoji?: string
+    custom_emoji_url?: string | null
+    custom_emoji_dark_url?: string | null
+  }>
+  avatar_url?: string
+  large_avatar_url?: string
   profile_fields?: {
     visible?: PublicProfileField[]
     not_visible?: PublicProfileField[]
   }
+  gamification_stats?: Record<string, unknown>
 }
 
 export async function getMemberPublicProfile(memberId: number): Promise<PublicProfile> {

@@ -28,23 +28,23 @@ export default function MembersPage() {
       const res = await fetch(url, { cache: "no-store" })
       if (!res.ok) throw new Error(`Failed: ${res.status}`)
       const json = await res.json()
-      // Map headless members list to DataTable row shape
-      const rows = Array.isArray(json.records)
-        ? json.records.map((m: {
-            community_member_id: number
-            name: string
-            roles?: { admin?: boolean; moderator?: boolean }
-            invitedBy?: string
-          }) => ({
-            id: m.community_member_id,
-            header: m.name || 'Unknown Member',
-            // No country in headless response; leave placeholder
-            type: 'Unknown',
-            status: m.roles?.admin ? 'Admin' : (m.roles?.moderator ? 'Moderator' : 'Active'),
-            invitedBy: m.invitedBy || 'N/A',
-            referrer: 'N/A',
-          }))
-        : []
+       // Map enhanced members list to DataTable row shape
+       const rows = Array.isArray(json.records)
+         ? json.records.map((m: {
+             community_member_id: number
+             name: string
+             roles?: { admin?: boolean; moderator?: boolean }
+             invitedBy?: string
+             country?: string
+           }) => ({
+             id: m.community_member_id,
+             header: m.name || 'Unknown Member',
+             type: m.country || 'Unknown', // Now using actual country data from profile
+             status: m.roles?.admin ? 'Admin' : (m.roles?.moderator ? 'Moderator' : 'Active'),
+             invitedBy: m.invitedBy || 'N/A',
+             referrer: 'N/A',
+           }))
+         : []
       setLiveData(rows)
       if (typeof json.page_count === 'number') setPageCount(json.page_count)
     } catch (e: unknown) {
@@ -76,9 +76,17 @@ export default function MembersPage() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              {loading && (
-                <div className="px-4 lg:px-6">Loading members…</div>
-              )}
+                {loading && (
+                  <div className="px-4 lg:px-6">
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                      <span>Loading members with country data from profiles...</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Extracting location information from member profiles and bio data
+                    </div>
+                  </div>
+                )}
               {error && (
                 <div className="px-4 lg:px-6 text-red-500">
                   {error}
